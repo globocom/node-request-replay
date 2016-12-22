@@ -11,12 +11,9 @@ var errorCodes = [
 ];
 
 function mixIn(dst, src) {
-    var key;
-
-    for (key in src) {
+    for (var key in src) {
         dst[key] = src[key];
     }
-
     return dst;
 }
 
@@ -60,20 +57,14 @@ function requestReplay(request, options) {
             return originalEmit.apply(this, arguments);
         }
 
-        // Do not emit anything if we are retrying
-        if (retrying) {
-            return;
-        }
-
-        // If not a retry error code, pass-through
-        if (name !== 'error' || options.errorCodes.indexOf(error.code) === -1) {
+         //If not a retry error code, pass-through
+        if (name !== 'error' || options.errorCodes[error.code] === -1) {
             return originalEmit.apply(this, arguments);
         }
-
         timeout = operation._timeouts[0];
 
-        // Retry
-        if (operation.retry(error)) {
+        //retry
+        if (!retrying && operation.retry(error)) {
             retrying = true;
             request.abort();
             request._aborted = false;
